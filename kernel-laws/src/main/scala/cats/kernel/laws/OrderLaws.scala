@@ -9,7 +9,7 @@ import org.scalacheck.Prop._
 import cats.kernel.std.boolean._
 
 object OrderLaws {
-  def apply[A: Eq: Arbitrary] = new OrderLaws[A] {
+  def apply[A : Eq : Arbitrary] = new OrderLaws[A] {
     def Equ = Eq[A]
     def Arb = implicitly[Arbitrary[A]]
   }
@@ -71,9 +71,9 @@ trait OrderLaws[A] extends Laws {
   )
 
   class OrderProperties(
-    name: String,
-    parent: Option[RuleSet],
-    props: (String, Prop)*
-  ) extends DefaultRuleSet(name, parent, props: _*)
-
+      name: String,
+      parent: Option[RuleSet],
+      props: (String, Prop)*
+  )
+      extends DefaultRuleSet(name, parent, props: _*)
 }

@@ -30,10 +30,10 @@ final case class OptionT[F[_], A](value: F[Option[A]]) {
 
   def flatMapF[B](f: A => F[Option[B]])(implicit F: Monad[F]): OptionT[F, B] =
     OptionT(
-      F.flatMap(value){
-        case Some(a) => f(a)
-        case None => F.pure(None)
-      })
+      F.flatMap(value) {
+    case Some(a) => f(a)
+    case None => F.pure(None)
+  })
 
   def transform[B](f: Option[A] => Option[B])(implicit F: Functor[F]): OptionT[F, B] =
     OptionT(F.map(value)(f))
@@ -45,7 +45,7 @@ final case class OptionT[F[_], A](value: F[Option[A]]) {
     F.map(value)(_.getOrElse(default))
 
   def getOrElseF(default: => F[A])(implicit F: Monad[F]): F[A] =
-    F.flatMap(value){
+    F.flatMap(value) {
       case Some(a) => F.pure(a)
       case None => default
     }
@@ -77,9 +77,9 @@ final case class OptionT[F[_], A](value: F[Option[A]]) {
   def orElseF(default: => F[Option[A]])(implicit F: Monad[F]): OptionT[F, A] =
     OptionT(
       F.flatMap(value) {
-        case s @ Some(_) => F.pure(s)
-        case None => default
-      })
+    case s @ Some(_) => F.pure(s)
+    case None => default
+  })
 
   def toRight[L](left: => L)(implicit F: Functor[F]): XorT[F, L, A] =
     XorT(cata(Xor.Left(left), Xor.Right.apply))
@@ -98,7 +98,7 @@ object OptionT extends OptionTInstances {
   def some[F[_], A](a: A)(implicit F: Applicative[F]): OptionT[F, A] =
     pure(a)
 
-  def none[F[_], A](implicit F: Applicative[F]) : OptionT[F, A] =
+  def none[F[_], A](implicit F: Applicative[F]): OptionT[F, A] =
     OptionT(F.pure(None))
 
   /**
@@ -123,14 +123,14 @@ object OptionT extends OptionTInstances {
   }
 
   /**
-    * Lifts the `F[A]` Functor into an `OptionT[F, A]`.
-    *
-    */
+   * Lifts the `F[A]` Functor into an `OptionT[F, A]`.
+   *
+   */
   def liftF[F[_], A](fa: F[A])(implicit F: Functor[F]): OptionT[F, A] = OptionT(F.map(fa)(Some(_)))
 }
 
 private[data] sealed trait OptionTInstances1 {
-  implicit def optionTFunctor[F[_]:Functor]: Functor[OptionT[F, ?]] =
+  implicit def optionTFunctor[F[_]: Functor]: Functor[OptionT[F, ?]] =
     new Functor[OptionT[F, ?]] {
       override def map[A, B](fa: OptionT[F, A])(f: A => B): OptionT[F, B] =
         fa.map(f)

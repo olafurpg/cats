@@ -7,6 +7,7 @@ import cats.data.Xor, Xor.{Left, Right}
 import cats.arrow.NaturalTransformation
 
 object Free {
+
   /**
    * Return from the computation with the given value.
    */
@@ -31,7 +32,7 @@ object Free {
   def pure[S[_], A](a: A): Free[S, A] = Pure(a)
 
   final class FreeInjectPartiallyApplied[F[_], G[_]] private[free] {
-    def apply[A](fa: F[A])(implicit I : Inject[F, G]): Free[G, A] =
+    def apply[A](fa: F[A])(implicit I: Inject[F, G]): Free[G, A] =
       Free.liftF(I.inj(fa))
   }
 
@@ -116,7 +117,8 @@ sealed abstract class Free[S[_], A] extends Product with Serializable {
    * Run to completion, using a function that maps the resumption
    * from `S` to a monad `M`.
    */
-  final def runM[M[_]](f: S[Free[S, A]] => M[Free[S, A]])(implicit S: Functor[S], M: Monad[M]): M[A] = {
+  final def runM[M[_]](f: S[Free[S, A]] => M[Free[S, A]])(
+      implicit S: Functor[S], M: Monad[M]): M[A] = {
     def runM2(t: Free[S, A]): M[A] = t.resume match {
       case Left(s) => Monad[M].flatMap(f(s))(runM2)
       case Right(r) => Monad[M].pure(r)
@@ -150,6 +152,4 @@ sealed abstract class Free[S[_], A] extends Product with Serializable {
     }(Free.freeMonad)
 
   final def compile[T[_]](f: S ~> T): Free[T, A] = mapSuspension(f)
-
 }
-

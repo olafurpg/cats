@@ -18,10 +18,12 @@ class FunctionTests extends CatsSuite {
 
   implicit val iso = CartesianTests.Isomorphisms.invariant[Function1[Int, ?]]
   checkAll("Function1[Int, Int]", CartesianTests[Function1[Int, ?]].cartesian[Int, Int, Int])
-  checkAll("Cartesian[Function1[Int, ?]]", SerializableTests.serializable(Cartesian[Function1[Int, ?]]))
+  checkAll(
+    "Cartesian[Function1[Int, ?]]", SerializableTests.serializable(Cartesian[Function1[Int, ?]]))
 
   checkAll("Function1[Int, Int]", MonadReaderTests[Int => ?, Int].monadReader[Int, Int, Int])
-  checkAll("MonadReader[Int => ?, Int]", SerializableTests.serializable(MonadReader[Int => ?, Int]))
+  checkAll(
+    "MonadReader[Int => ?, Int]", SerializableTests.serializable(MonadReader[Int => ?, Int]))
 
   checkAll("Function1[Int, Int]", ArrowTests[Function1].arrow[Int, Int, Int, Int, Int, Int])
   checkAll("Arrow[Function1]", SerializableTests.serializable(Arrow[Function1]))
@@ -32,7 +34,8 @@ class FunctionTests extends CatsSuite {
   checkAll("Function1[Int, Int]", ContravariantTests[? => Int].contravariant[Int, Int, Int])
   checkAll("Contravariant[? => Int]", SerializableTests.serializable(Contravariant[? => Int]))
 
-  checkAll("Function1[String, Int]", GroupLaws[Function1[String, Int]].semigroup(function1Semigroup[String, Int]))
+  checkAll("Function1[String, Int]",
+           GroupLaws[Function1[String, Int]].semigroup(function1Semigroup[String, Int]))
 
   checkAll("Function1[String, Int]", GroupLaws[Function1[String, Int]].monoid)
 

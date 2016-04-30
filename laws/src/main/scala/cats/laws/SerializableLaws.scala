@@ -2,7 +2,7 @@ package cats
 package laws
 
 import org.scalacheck.Prop
-import org.scalacheck.Prop.{ Exception, Proof, Result }
+import org.scalacheck.Prop.{Exception, Proof, Result}
 
 import catalysts.Platform
 
@@ -30,25 +30,28 @@ object SerializableLaws {
   // laws project.
 
   def serializable[A](a: A): Prop =
-    if (Platform.isJs) Prop(_ => Result(status = Proof)) else Prop { _ =>
-      import java.io.{ ByteArrayInputStream, ByteArrayOutputStream, ObjectInputStream, ObjectOutputStream }
+    if (Platform.isJs) Prop(_ => Result(status = Proof))
+    else
+      Prop { _ =>
+        import java.io.{ByteArrayInputStream, ByteArrayOutputStream, ObjectInputStream, ObjectOutputStream}
 
-      val baos = new ByteArrayOutputStream()
-      val oos = new ObjectOutputStream(baos)
-      var ois: ObjectInputStream = null
-      try {
-        oos.writeObject(a)
-        oos.close()
-        val bais = new ByteArrayInputStream(baos.toByteArray())
-        ois = new ObjectInputStream(bais)
-        val a2 = ois.readObject()
-        ois.close()
-        Result(status = Proof)
-      } catch { case NonFatal(t) =>
-        Result(status = Exception(t))
-      } finally {
-        oos.close()
-        if (ois != null) ois.close()
+        val baos = new ByteArrayOutputStream()
+        val oos = new ObjectOutputStream(baos)
+        var ois: ObjectInputStream = null
+        try {
+          oos.writeObject(a)
+          oos.close()
+          val bais = new ByteArrayInputStream(baos.toByteArray())
+          ois = new ObjectInputStream(bais)
+          val a2 = ois.readObject()
+          ois.close()
+          Result(status = Proof)
+        } catch {
+          case NonFatal(t) =>
+            Result(status = Exception(t))
+        } finally {
+          oos.close()
+          if (ois != null) ois.close()
+        }
       }
-    }
 }

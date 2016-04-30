@@ -13,6 +13,7 @@ sealed abstract class Func[F[_], A, B] { self =>
 }
 
 object Func extends FuncInstances {
+
   /** function `A => F[B]. */
   def func[F[_], A, B](run0: A => F[B]): Func[F, A, B] =
     new Func[F, A, B] {
@@ -28,11 +29,14 @@ object Func extends FuncInstances {
 
   /** applicative function using [[Unapply]]. */
   def appFuncU[A, R](f: A => R)(implicit RR: Unapply[Applicative, R]): AppFunc[RR.M, A, RR.A] =
-    appFunc({ a: A => RR.subst(f(a)) })(RR.TC)
+    appFunc({ a: A =>
+      RR.subst(f(a))
+    })(RR.TC)
 }
 
 private[data] abstract class FuncInstances extends FuncInstances0 {
-  implicit def funcApplicative[F[_], C](implicit FF: Applicative[F]): Applicative[Lambda[X => Func[F, C, X]]] =
+  implicit def funcApplicative[F[_], C](
+      implicit FF: Applicative[F]): Applicative[Lambda[X => Func[F, C, X]]] =
     new FuncApplicative[F, C] {
       def F: Applicative[F] = FF
     }
@@ -66,7 +70,8 @@ sealed trait FuncApply[F[_], C] extends Apply[Lambda[X => Func[F, C, X]]] with F
     Func.func(c => F.product(fa.run(c), fb.run(c)))
 }
 
-sealed trait FuncApplicative[F[_], C] extends Applicative[Lambda[X => Func[F, C, X]]] with FuncApply[F, C] {
+sealed trait FuncApplicative[F[_], C]
+    extends Applicative[Lambda[X => Func[F, C, X]]] with FuncApply[F, C] {
   def F: Applicative[F]
   def pure[A](a: A): Func[F, C, A] =
     Func.func(c => F.pure(a))
@@ -78,33 +83,30 @@ sealed trait FuncApplicative[F[_], C] extends Applicative[Lambda[X => Func[F, C,
 sealed abstract class AppFunc[F[_], A, B] extends Func[F, A, B] { self =>
   def F: Applicative[F]
 
-  def product[G[_]](g: AppFunc[G, A, B]): AppFunc[Lambda[X => Prod[F, G, X]], A, B] =
-    {
-      implicit val FF: Applicative[F] = self.F
-      implicit val GG: Applicative[G] = g.F
-      Func.appFunc[Lambda[X => Prod[F, G, X]], A, B]{
-        a: A => Prod(self.run(a), g.run(a))
-      }
+  def product[G[_]](g: AppFunc[G, A, B]): AppFunc[Lambda[X => Prod[F, G, X]], A, B] = {
+    implicit val FF: Applicative[F] = self.F
+    implicit val GG: Applicative[G] = g.F
+    Func.appFunc[Lambda[X => Prod[F, G, X]], A, B] { a: A =>
+      Prod(self.run(a), g.run(a))
     }
+  }
 
-  def compose[G[_], C](g: AppFunc[G, C, A]): AppFunc[Lambda[X => G[F[X]]], C, B] =
-    {
-      implicit val FF: Applicative[F] = self.F
-      implicit val GG: Applicative[G] = g.F
-      implicit val GGFF: Applicative[Lambda[X => G[F[X]]]] = GG.compose(FF)
-      Func.appFunc[Lambda[X => G[F[X]]], C, B]({
-        c: C => GG.map(g.run(c))(self.run)
-      })
-    }
+  def compose[G[_], C](g: AppFunc[G, C, A]): AppFunc[Lambda[X => G[F[X]]], C, B] = {
+    implicit val FF: Applicative[F] = self.F
+    implicit val GG: Applicative[G] = g.F
+    implicit val GGFF: Applicative[Lambda[X => G[F[X]]]] = GG.compose(FF)
+    Func.appFunc[Lambda[X => G[F[X]]], C, B]({ c: C =>
+      GG.map(g.run(c))(self.run)
+    })
+  }
 
   def andThen[G[_], C](g: AppFunc[G, B, C]): AppFunc[Lambda[X => F[G[X]]], A, C] =
     g.compose(self)
 
-  def map[C](f: B => C): AppFunc[F, A, C] =
-    {
-      implicit val FF: Applicative[F] = self.F
-      Func.appFunc(a => F.map(self.run(a))(f))
-    }
+  def map[C](f: B => C): AppFunc[F, A, C] = {
+    implicit val FF: Applicative[F] = self.F
+    Func.appFunc(a => F.map(self.run(a))(f))
+  }
 
   def traverse[G[_]](ga: G[A])(implicit GG: Traverse[G]): F[G[B]] =
     GG.traverse(ga)(self.run)(F)
@@ -113,13 +115,15 @@ sealed abstract class AppFunc[F[_], A, B] extends Func[F, A, B] { self =>
 object AppFunc extends AppFuncInstances
 
 private[data] abstract class AppFuncInstances {
-  implicit def appFuncApplicative[F[_], C](implicit FF: Applicative[F]): Applicative[Lambda[X => AppFunc[F, C, X]]] =
+  implicit def appFuncApplicative[F[_], C](
+      implicit FF: Applicative[F]): Applicative[Lambda[X => AppFunc[F, C, X]]] =
     new AppFuncApplicative[F, C] {
       def F: Applicative[F] = FF
     }
 }
 
-private[data] sealed trait AppFuncApplicative[F[_], C] extends Applicative[Lambda[X => AppFunc[F, C, X]]] {
+private[data] sealed trait AppFuncApplicative[F[_], C]
+    extends Applicative[Lambda[X => AppFunc[F, C, X]]] {
   def F: Applicative[F]
   override def map[A, B](fa: AppFunc[F, C, A])(f: A => B): AppFunc[F, C, B] =
     fa.map(f)

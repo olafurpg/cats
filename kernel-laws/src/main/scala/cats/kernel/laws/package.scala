@@ -19,11 +19,13 @@ package object laws {
 
   object Ops {
     def run[A](sym: String)(lhs: A, rhs: A)(f: (A, A) => Boolean): Prop =
-      if (f(lhs, rhs)) proved else falsified :| {
-        val exp = Pretty.pretty(lhs, Pretty.Params(0))
-        val got = Pretty.pretty(rhs, Pretty.Params(0))
-        s"($exp $sym $got) failed"
-      }
+      if (f(lhs, rhs)) proved
+      else
+        falsified :| {
+          val exp = Pretty.pretty(lhs, Pretty.Params(0))
+          val got = Pretty.pretty(rhs, Pretty.Params(0))
+          s"($exp $sym $got) failed"
+        }
   }
 
   implicit class CheckEqOps[A](lhs: A)(implicit ev: Eq[A], pp: A => Pretty) {

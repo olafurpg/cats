@@ -9,11 +9,8 @@ import org.typelevel.discipline.Laws
 trait FoldableTests[F[_]] extends Laws {
   def laws: FoldableLaws[F]
 
-  def foldable[A: Arbitrary, B: Arbitrary](implicit
-    ArbFA: Arbitrary[F[A]],
-    B: Monoid[B],
-    EqB: Eq[B]
-  ): RuleSet = {
+  def foldable[A : Arbitrary, B : Arbitrary](
+      implicit ArbFA: Arbitrary[F[A]], B: Monoid[B], EqB: Eq[B]): RuleSet = {
     new DefaultRuleSet(
       name = "foldable",
       parent = None,
@@ -27,7 +24,6 @@ trait FoldableTests[F[_]] extends Laws {
     )
   }
 }
-
 
 object FoldableTests {
   def apply[F[_]: Foldable]: FoldableTests[F] =

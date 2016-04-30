@@ -13,7 +13,8 @@ import simulacrum.typeclass
  *
  * See: [[https://www.cs.ox.ac.uk/jeremy.gibbons/publications/iterator.pdf The Essence of the Iterator Pattern]]
  */
-@typeclass trait Traverse[F[_]] extends Functor[F] with Foldable[F] { self =>
+@typeclass
+trait Traverse[F[_]] extends Functor[F] with Foldable[F] { self =>
 
   /**
    * Given a function which returns a G effect, thread this effect
@@ -40,7 +41,7 @@ import simulacrum.typeclass
    * Behaves just like sequence, but uses [[Unapply]] to find the
    * Applicative instance for G.
    */
-  def sequenceU[GA](fga: F[GA])(implicit U: Unapply[Applicative,GA]): U.M[F[U.A]] =
+  def sequenceU[GA](fga: F[GA])(implicit U: Unapply[Applicative, GA]): U.M[F[U.A]] =
     traverse(fga)(U.subst)(U.TC)
 
   override def map[A, B](fa: F[A])(f: A => B): F[B] =

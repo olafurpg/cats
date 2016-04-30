@@ -15,7 +15,6 @@ trait AlternativeLaws[F[_]] extends ApplicativeLaws[F] with MonoidKLaws[F] {
 
   def alternativeRightDistributivity[A, B](fa: F[A], ff: F[A => B], fg: F[A => B]): IsEq[F[B]] =
     ((ff |+| fg) ap fa) <-> ((ff ap fa) |+| (fg ap fa))
-
 }
 
 object AlternativeLaws {

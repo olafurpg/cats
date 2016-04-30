@@ -2,6 +2,7 @@ package cats
 
 /** A monad that support monoidal accumulation (e.g. logging List[String]) */
 trait MonadWriter[F[_], W] extends Monad[F] {
+
   /** Lift a writer action into the effect */
   def writer[A](aw: (W, A)): F[A]
 

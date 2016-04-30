@@ -16,24 +16,25 @@ class ListTests extends CatsSuite {
   checkAll("List[Int]", MonadCombineTests[List].monadCombine[Int, Int, Int])
   checkAll("MonadCombine[List]", SerializableTests.serializable(MonadCombine[List]))
 
-  checkAll("List[Int] with Option", TraverseTests[List].traverse[Int, Int, Int, List[Int], Option, Option])
+  checkAll("List[Int] with Option",
+           TraverseTests[List].traverse[Int, Int, Int, List[Int], Option, Option])
   checkAll("Traverse[List]", SerializableTests.serializable(Traverse[List]))
 
   test("nel => list => nel returns original nel")(
     forAll { fa: NonEmptyList[Int] =>
-      fa.unwrap.toNel should === (Some(fa))
+      fa.unwrap.toNel should ===(Some(fa))
     }
   )
 
-  test("toNel on empty list returns None"){
-    List.empty[Int].toNel should === (None)
+  test("toNel on empty list returns None") {
+    List.empty[Int].toNel should ===(None)
   }
 
-  test("show"){
-    List(1, 2, 3).show should === ("List(1, 2, 3)")
-    (Nil: List[Int]).show should === ("List()")
+  test("show") {
+    List(1, 2, 3).show should ===("List(1, 2, 3)")
+    (Nil: List[Int]).show should ===("List()")
     forAll { l: List[String] =>
-      l.show should === (l.toString)
+      l.show should ===(l.toString)
     }
   }
 }

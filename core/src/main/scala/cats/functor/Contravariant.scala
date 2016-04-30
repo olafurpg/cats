@@ -6,7 +6,8 @@ import simulacrum.typeclass
 /**
  * Must obey the laws defined in cats.laws.ContravariantLaws.
  */
-@typeclass trait Contravariant[F[_]] extends Invariant[F] { self =>
+@typeclass
+trait Contravariant[F[_]] extends Invariant[F] { self =>
   def contramap[A, B](fa: F[A])(f: B => A): F[B]
   override def imap[A, B](fa: F[A])(f: A => B)(fi: B => A): F[B] = contramap(fa)(fi)
 
@@ -18,7 +19,8 @@ import simulacrum.typeclass
     }
   }
 
-  override def composeWithFunctor[G[_]](implicit G: Functor[G]): Contravariant[Lambda[X => F[G[X]]]] = {
+  override def composeWithFunctor[G[_]](
+      implicit G: Functor[G]): Contravariant[Lambda[X => F[G[X]]]] = {
     val G0 = G
     new Contravariant.CovariantComposite[F, G] {
       def F: Contravariant[F] = self

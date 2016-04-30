@@ -41,10 +41,10 @@ object KernelBoiler {
 
   class TemplateVals(val arity: Int) {
     val synTypes = (0 until arity).map(n => s"A$n")
-    val synVals  = (0 until arity).map(n => s"a$n")
-    val `A..N`   = synTypes.mkString(", ")
-    val `a..n`   = synVals.mkString(", ")
-    val `_.._`   = Seq.fill(arity)("_").mkString(", ")
+    val synVals = (0 until arity).map(n => s"a$n")
+    val `A..N` = synTypes.mkString(", ")
+    val `a..n` = synVals.mkString(", ")
+    val `_.._` = Seq.fill(arity)("_").mkString(", ")
     val `(A..N)` = if (arity == 1) "Tuple1[A0]" else synTypes.mkString("(", ", ", ")")
     val `(_.._)` = if (arity == 1) "Tuple1[_]" else Seq.fill(arity)("_").mkString("(", ", ", ")")
     val `(a..n)` = if (arity == 1) "Tuple1(a)" else synVals.mkString("(", ", ", ")")
@@ -72,8 +72,11 @@ object KernelBoiler {
       val raw = range.map(n => content(new TemplateVals(n)).split('\n').filterNot(_.isEmpty))
       val preBody = raw.head.takeWhile(_.startsWith("|")).map(_.tail)
       val instances = raw.flatMap(_.filter(_.startsWith("-")).map(_.tail))
-      val postBody = raw.head.dropWhile(_.startsWith("|")).dropWhile(_.startsWith("-")).map(_.tail)
-      (headerLines ++ preBody ++ instances ++ postBody).mkString("\n")
+      val postBody = raw.head
+        .dropWhile(_.startsWith("|"))
+        .dropWhile(_.startsWith("-"))
+        .map(_.tail)
+        (headerLines ++ preBody ++ instances ++ postBody).mkString("\n")
     }
   }
 
@@ -91,7 +94,7 @@ object KernelBoiler {
       def tuple(results: TraversableOnce[String]) = {
         val resultsVec = results.toVector
         val a = synTypes.size
-        val r =  s"${0.until(a).map(i => resultsVec(i)).mkString(", ")}"
+        val r = s"${0.until(a).map(i => resultsVec(i)).mkString(", ")}"
         if (a == 1) "Tuple1(" ++ r ++ ")"
         else s"(${r})"
       }
@@ -117,10 +120,10 @@ object KernelBoiler {
       }
 
       block"""
-        |package cats.kernel
-        |package std
-        |
-        |trait TupleInstances {
+      |package cats.kernel
+      |package std
+      |
+      |trait TupleInstances {
         -  implicit def tuple${arity}Band[${`A..N`}](implicit ${constraints("Band")}): Band[${`(A..N)`}] =
         -    new Band[${`(A..N)`}] {
         -      def combine(x: ${`(A..N)`}, y: ${`(A..N)`}): ${`(A..N)`} = ${binTuple("combine")}
@@ -135,7 +138,8 @@ object KernelBoiler {
         -
         -  implicit def tuple${arity}Eq[${`A..N`}](implicit ${constraints("Eq")}): Eq[${`(A..N)`}] =
         -    new Eq[${`(A..N)`}] {
-        -      def eqv(x: ${`(A..N)`}, y: ${`(A..N)`}): Boolean = ${binMethod("eqv").mkString(" && ")}
+        -      def eqv(x: ${`(A..N)`}, y: ${`(A..N)`}): Boolean = ${binMethod("eqv").mkString(
+        " && ")}
         -    }
         -
         -  implicit def tuple${arity}Monoid[${`A..N`}](implicit ${constraints("Monoid")}): Monoid[${`(A..N)`}] =
@@ -165,7 +169,7 @@ object KernelBoiler {
         -    new Semilattice[${`(A..N)`}] {
         -      def combine(x: ${`(A..N)`}, y: ${`(A..N)`}): ${`(A..N)`} = ${binTuple("combine")}
         -    }
-        |}
+      |}
       """
     }
   }

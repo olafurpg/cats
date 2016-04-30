@@ -15,7 +15,8 @@ import simulacrum.typeclass
  *  - `reduceLeftTo(fa)(f)(g)` eagerly reduces with an additional mapping function
  *  - `reduceRightTo(fa)(f)(g)` lazily reduces with an additional mapping function
  */
-@typeclass trait Reducible[F[_]] extends Foldable[F] { self =>
+@typeclass
+trait Reducible[F[_]] extends Foldable[F] { self =>
 
   /**
    * Left-associative reduction on `F` using the function `f`.
@@ -74,7 +75,8 @@ import simulacrum.typeclass
   /**
    * Overriden from `Foldable[_]` for efficiency.
    */
-  override def reduceRightToOption[A, B](fa: F[A])(f: A => B)(g: (A, Eval[B]) => Eval[B]): Eval[Option[B]] =
+  override def reduceRightToOption[A, B](fa: F[A])(f: A => B)(
+      g: (A, Eval[B]) => Eval[B]): Eval[Option[B]] =
     reduceRightTo(fa)(f)(g).map(Option(_))
 
   /**
@@ -110,7 +112,6 @@ import simulacrum.typeclass
     }
 }
 
-
 /**
  * This class composes two `Reducible` instances to provide an
  * instance for the nested types.
@@ -119,7 +120,8 @@ import simulacrum.typeclass
  * `F[A]`) and a `Reducible[G]` instance (which can reduce `G[A]`
  * values), this class is able to reduce `F[G[A]]` values.
  */
-trait CompositeReducible[F[_], G[_]] extends Reducible[λ[α => F[G[α]]]] with CompositeFoldable[F, G] {
+trait CompositeReducible[F[_], G[_]]
+    extends Reducible[λ[α => F[G[α]]]] with CompositeFoldable[F, G] {
   implicit def F: Reducible[F]
   implicit def G: Reducible[G]
 
@@ -138,7 +140,6 @@ trait CompositeReducible[F[_], G[_]] extends Reducible[λ[α => F[G[α]]]] with 
   }
 }
 
-
 /**
  * This class defines a `Reducible[F]` in terms of a `Foldable[G]`
  * together with a `split method, `F[A]` => `(A, G[A])`.
@@ -155,8 +156,9 @@ abstract class NonEmptyReducible[F[_], G[_]](implicit G: Foldable[G]) extends Re
   }
 
   def foldRight[A, B](fa: F[A], lb: Eval[B])(f: (A, Eval[B]) => Eval[B]): Eval[B] =
-    Always(split(fa)).flatMap { case (a, ga) =>
-      f(a, G.foldRight(ga, lb)(f))
+    Always(split(fa)).flatMap {
+      case (a, ga) =>
+        f(a, G.foldRight(ga, lb)(f))
     }
 
   def reduceLeftTo[A, B](fa: F[A])(f: A => B)(g: (B, A) => B): B = {
@@ -165,10 +167,11 @@ abstract class NonEmptyReducible[F[_], G[_]](implicit G: Foldable[G]) extends Re
   }
 
   def reduceRightTo[A, B](fa: F[A])(f: A => B)(g: (A, Eval[B]) => Eval[B]): Eval[B] =
-    Always(split(fa)).flatMap { case (a, ga) =>
-      G.reduceRightToOption(ga)(f)(g).flatMap {
-        case Some(b) => g(a, Now(b))
-        case None => Later(f(a))
-      }
+    Always(split(fa)).flatMap {
+      case (a, ga) =>
+        G.reduceRightToOption(ga)(f)(g).flatMap {
+          case Some(b) => g(a, Now(b))
+          case None => Later(f(a))
+        }
     }
 }

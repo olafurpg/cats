@@ -1,6 +1,6 @@
 package cats.kernel
 
-import scala.{ specialized => sp }
+import scala.{specialized => sp}
 
 /**
  * A monoid is a semigroup with an identity. A monoid is a specialization of a
@@ -25,7 +25,8 @@ trait Monoid[@sp(Int, Long, Float, Double) A] extends Any with Semigroup[A] {
    * Return `a` appended to itself `n` times.
    */
   override def combineN(a: A, n: Int): A =
-    if (n < 0) throw new IllegalArgumentException("Repeated combining for monoids must have n >= 0")
+    if (n < 0)
+      throw new IllegalArgumentException("Repeated combining for monoids must have n >= 0")
     else if (n == 0) empty
     else repeatedCombineN(a, n)
 

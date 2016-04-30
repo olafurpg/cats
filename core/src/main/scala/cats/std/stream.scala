@@ -35,7 +35,8 @@ trait StreamInstances extends cats.kernel.std.StreamInstances {
           if (s.isEmpty) lb else f(s.head, Eval.defer(foldRight(s.tail, lb)(f)))
         }
 
-      def traverse[G[_], A, B](fa: Stream[A])(f: A => G[B])(implicit G: Applicative[G]): G[Stream[B]] = {
+      def traverse[G[_], A, B](fa: Stream[A])(f: A => G[B])(
+          implicit G: Applicative[G]): G[Stream[B]] = {
         def init: G[Stream[B]] = G.pure(Stream.empty[B])
 
         // We use foldRight to avoid possible stack overflows. Since
@@ -58,8 +59,9 @@ trait StreamInstances extends cats.kernel.std.StreamInstances {
       override def isEmpty[A](fa: Stream[A]): Boolean = fa.isEmpty
     }
 
-  implicit def streamShow[A: Show]: Show[Stream[A]] =
+  implicit def streamShow[A : Show]: Show[Stream[A]] =
     new Show[Stream[A]] {
-      def show(fa: Stream[A]): String = if(fa.isEmpty) "Stream()" else s"Stream(${fa.head.show}, ?)"
+      def show(fa: Stream[A]): String =
+        if (fa.isEmpty) "Stream()" else s"Stream(${fa.head.show}, ?)"
     }
 }

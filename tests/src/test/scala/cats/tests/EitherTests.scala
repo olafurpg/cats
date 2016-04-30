@@ -14,10 +14,12 @@ class EitherTests extends CatsSuite {
   checkAll("Either[Int, Int]", MonadTests[Either[Int, ?]].monad[Int, Int, Int])
   checkAll("Monad[Either[Int, ?]]", SerializableTests.serializable(Monad[Either[Int, ?]]))
 
-  checkAll("Either[Int, Int] with Option", TraverseTests[Either[Int, ?]].traverse[Int, Int, Int, Int, Option, Option])
+  checkAll("Either[Int, Int] with Option",
+           TraverseTests[Either[Int, ?]].traverse[Int, Int, Int, Int, Option, Option])
   checkAll("Traverse[Either[Int, ?]", SerializableTests.serializable(Traverse[Either[Int, ?]]))
 
-  checkAll("Either[?, ?]", BitraverseTests[Either].bitraverse[Option, Int, Int, Int, String, String, String])
+  checkAll("Either[?, ?]",
+           BitraverseTests[Either].bitraverse[Option, Int, Int, Int, String, String, String])
   checkAll("Bitraverse[Either]", SerializableTests.serializable(Bitraverse[Either]))
 
   val partialOrder = eitherPartialOrder[Int, String]
@@ -28,14 +30,15 @@ class EitherTests extends CatsSuite {
   {
     implicit val S = ListWrapper.eqv[String]
     implicit val I = ListWrapper.eqv[Int]
-    checkAll("Either[ListWrapper[String], ListWrapper[Int]]", OrderLaws[Either[ListWrapper[String], ListWrapper[Int]]].eqv)
-    checkAll("Eq[Either[ListWrapper[String], ListWrapper[Int]]]", SerializableTests.serializable(Eq[Either[ListWrapper[String], ListWrapper[Int]]]))
+    checkAll("Either[ListWrapper[String], ListWrapper[Int]]",
+             OrderLaws[Either[ListWrapper[String], ListWrapper[Int]]].eqv)
+    checkAll("Eq[Either[ListWrapper[String], ListWrapper[Int]]]",
+             SerializableTests.serializable(Eq[Either[ListWrapper[String], ListWrapper[Int]]]))
   }
 
   val orderLaws = OrderLaws[Either[Int, String]]
   checkAll("Either[Int, String]", orderLaws.partialOrder(partialOrder))
   checkAll("Either[Int, String]", orderLaws.order(order))
-
 
   test("implicit instances resolve specifically") {
     val eq = eitherEq[Int, String]
@@ -46,7 +49,7 @@ class EitherTests extends CatsSuite {
 
   test("show isn't empty") {
     forAll { (e: Either[Int, String]) =>
-      show.show(e).nonEmpty should === (true)
+      show.show(e).nonEmpty should ===(true)
     }
   }
 }

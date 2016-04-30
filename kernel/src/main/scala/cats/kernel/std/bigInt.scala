@@ -4,10 +4,8 @@ package std
 package object bigInt extends BigIntInstances
 
 trait BigIntInstances {
-  implicit val bigIntOrder: Order[BigInt] =
-    new BigIntOrder
-  implicit val bigIntGroup: CommutativeGroup[BigInt] =
-    new BigIntGroup
+  implicit val bigIntOrder: Order[BigInt] = new BigIntOrder
+  implicit val bigIntGroup: CommutativeGroup[BigInt] = new BigIntGroup
 }
 
 class BigIntGroup extends CommutativeGroup[BigInt] {

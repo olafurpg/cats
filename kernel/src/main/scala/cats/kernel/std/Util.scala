@@ -26,11 +26,12 @@ object StaticMethods {
   // argument, and the larger map is the second.
   def addMap[K, V](small: Map[K, V], big: Map[K, V])(f: (V, V) => V): Map[K, V] = {
     val m = initMutableMap(big)
-    small.foreach { case (k, v1) =>
-      m(k) = m.get(k) match {
-        case Some(v2) => f(v1, v2)
-        case None => v1
-      }
+    small.foreach {
+      case (k, v1) =>
+        m(k) = m.get(k) match {
+          case Some(v2) => f(v1, v2)
+          case None => v1
+        }
     }
     wrapMutableMap(m)
   }
@@ -53,7 +54,8 @@ object StaticMethods {
     0
   }
 
-  def iteratorPartialCompare[A](xs: Iterator[A], ys: Iterator[A])(implicit ev: PartialOrder[A]): Double = {
+  def iteratorPartialCompare[A](xs: Iterator[A], ys: Iterator[A])(
+      implicit ev: PartialOrder[A]): Double = {
     while (true) {
       if (xs.hasNext) {
         if (ys.hasNext) {

@@ -1,7 +1,7 @@
 package cats
 package syntax
 
-import cats.data.{ Xor, Validated, ValidatedNel }
+import cats.data.{Xor, Validated, ValidatedNel}
 
 trait OptionSyntax {
   final def none[A] = Option.empty[A]
@@ -10,6 +10,7 @@ trait OptionSyntax {
 }
 
 final class OptionIdOps[A](val a: A) extends AnyVal {
+
   /**
    * Wrap a value in `Some`.
    *
@@ -27,6 +28,7 @@ final class OptionIdOps[A](val a: A) extends AnyVal {
 }
 
 final class OptionOps[A](val oa: Option[A]) extends AnyVal {
+
   /**
    * If the `Option` is a `Some`, return its value in a [[cats.data.Xor.Left]].
    * If the `Option` is `None`, return the provided `B` value in a
@@ -88,7 +90,8 @@ final class OptionOps[A](val oa: Option[A]) extends AnyVal {
    * res1: Validated[String, Int] = Valid(3)
    * }}}
    */
-  def toInvalid[B](b: => B): Validated[A, B] = oa.fold[Validated[A, B]](Validated.Valid(b))(Validated.Invalid(_))
+  def toInvalid[B](b: => B): Validated[A, B] =
+    oa.fold[Validated[A, B]](Validated.Valid(b))(Validated.Invalid(_))
 
   /**
    * If the `Option` is a `Some`, wrap its value in a [[cats.data.NonEmptyList]]
@@ -110,7 +113,8 @@ final class OptionOps[A](val oa: Option[A]) extends AnyVal {
    * res1: ValidatedNel[String, Int] = Valid(3)
    * }}}
    */
-  def toInvalidNel[B](b: => B): ValidatedNel[A, B] = oa.fold[ValidatedNel[A, B]](Validated.Valid(b))(Validated.invalidNel(_))
+  def toInvalidNel[B](b: => B): ValidatedNel[A, B] =
+    oa.fold[ValidatedNel[A, B]](Validated.Valid(b))(Validated.invalidNel(_))
 
   /**
    * If the `Option` is a `Some`, return its value in a [[cats.data.Validated.Valid]].
@@ -131,7 +135,8 @@ final class OptionOps[A](val oa: Option[A]) extends AnyVal {
    * res1: Validated[String, Int] = Invalid(error!)
    * }}}
    */
-  def toValid[B](b: => B): Validated[B, A] = oa.fold[Validated[B, A]](Validated.Invalid(b))(Validated.Valid(_))
+  def toValid[B](b: => B): Validated[B, A] =
+    oa.fold[Validated[B, A]](Validated.Invalid(b))(Validated.Valid(_))
 
   /**
    * If the `Option` is a `Some`, return its value in a [[cats.data.Validated.Valid]].
@@ -152,7 +157,8 @@ final class OptionOps[A](val oa: Option[A]) extends AnyVal {
    * res1: ValidatedNel[String, Int] = Invalid(OneAnd(error!,List()))
    * }}}
    */
-  def toValidNel[B](b: => B): ValidatedNel[B, A] = oa.fold[ValidatedNel[B, A]](Validated.invalidNel(b))(Validated.Valid(_))
+  def toValidNel[B](b: => B): ValidatedNel[B, A] =
+    oa.fold[ValidatedNel[B, A]](Validated.invalidNel(b))(Validated.Valid(_))
 
   /**
    * If the `Option` is a `Some`, return its value. If the `Option` is `None`,

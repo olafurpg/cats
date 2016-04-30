@@ -5,8 +5,7 @@ package laws
 trait MonadReaderLaws[F[_], R] extends MonadLaws[F] {
   implicit override def F: MonadReader[F, R]
 
-  val monadReaderAskIdempotent: IsEq[F[R]] =
-    F.flatMap(F.ask)(_ => F.ask) <-> F.ask
+  val monadReaderAskIdempotent: IsEq[F[R]] = F.flatMap(F.ask)(_ => F.ask) <-> F.ask
 
   def monadReaderLocalAsk(f: R => R): IsEq[F[R]] =
     F.local(f)(F.ask) <-> F.map(F.ask)(f)

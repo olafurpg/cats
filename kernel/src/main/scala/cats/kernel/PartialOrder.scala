@@ -41,7 +41,7 @@ trait PartialOrder[@sp A] extends Any with Eq[A] { self =>
    * - negative iff `x < y`
    * - zero     iff `x = y`
    * - positive iff `x > y`
-   */  
+   */
   def tryCompare(x: A, y: A): Option[Int] = {
     val c = partialCompare(x, y)
     if (isNaN(c)) None else Some(c.signum)
@@ -62,7 +62,7 @@ trait PartialOrder[@sp A] extends Any with Eq[A] { self =>
    */
   def pmax(x: A, y: A): Option[A] = {
     val c = partialCompare(x, y)
-    if (c >= 0)  Some(x)
+    if (c >= 0) Some(x)
     else if (c < 0) Some(y)
     else None
   }

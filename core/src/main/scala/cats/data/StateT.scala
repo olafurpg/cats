@@ -10,21 +10,24 @@ package data
 final class StateT[F[_], S, A](val runF: F[S => F[(S, A)]]) extends Serializable {
 
   def flatMap[B](fas: A => StateT[F, S, B])(implicit F: Monad[F]): StateT[F, S, B] =
-    StateT(s =>
-      F.flatMap(runF) { fsf =>
-        F.flatMap(fsf(s)) { case (s, a) =>
+    StateT(
+      s =>
+        F.flatMap(runF) { fsf =>
+      F.flatMap(fsf(s)) {
+        case (s, a) =>
           fas(a).run(s)
-        }
-      })
+      }
+  })
 
   def flatMapF[B](faf: A => F[B])(implicit F: Monad[F]): StateT[F, S, B] =
-    StateT(s =>
-      F.flatMap(runF) { fsf =>
-        F.flatMap(fsf(s)) { case (s, a) =>
+    StateT(
+      s =>
+        F.flatMap(runF) { fsf =>
+      F.flatMap(fsf(s)) {
+        case (s, a) =>
           F.map(faf(a))((s, _))
-        }
       }
-    )
+  })
 
   def map[B](f: A => B)(implicit F: Monad[F]): StateT[F, S, B] =
     transform { case (s, a) => (s, f(a)) }
@@ -69,13 +72,14 @@ final class StateT[F[_], S, A](val runF: F[S => F[(S, A)]]) extends Serializable
    */
   def transform[B](f: (S, A) => (S, B))(implicit F: Monad[F]): StateT[F, S, B] =
     transformF { fsa =>
-      F.map(fsa){ case (s, a) => f(s, a) }
+      F.map(fsa) { case (s, a) => f(s, a) }
     }
 
   /**
    * Like [[transform]], but allows the context to change from `F` to `G`.
    */
-  def transformF[G[_], B](f: F[(S, A)] => G[(S, B)])(implicit F: FlatMap[F], G: Applicative[G]): StateT[G, S, B] =
+  def transformF[G[_], B](f: F[(S, A)] => G[(S, B)])(
+      implicit F: FlatMap[F], G: Applicative[G]): StateT[G, S, B] =
     StateT(s => f(run(s)))
 
   /**
@@ -118,8 +122,8 @@ final class StateT[F[_], S, A](val runF: F[S => F[(S, A)]]) extends Serializable
     transform((s, _) => (s, f(s)))
 
   /**
-    * Get the input state, without modifying the state.
-    */
+   * Get the input state, without modifying the state.
+   */
   def get(implicit F: Monad[F]): StateT[F, S, S] =
     inspect(identity)
 }
@@ -156,9 +160,9 @@ private[data] sealed abstract class StateTInstances {
     new TransLift[StateT[?[_], S, ?]] {
       type TC[M[_]] = Applicative[M]
 
-      def liftT[M[_]: Applicative, A](ma: M[A]): StateT[M, S, A] = StateT(s => Applicative[M].map(ma)(s -> _))
+      def liftT[M[_]: Applicative, A](ma: M[A]): StateT[M, S, A] =
+        StateT(s => Applicative[M].map(ma)(s -> _))
     }
-
 }
 
 // To workaround SI-7139 `object State` needs to be defined inside the package object

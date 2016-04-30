@@ -1,7 +1,7 @@
 package cats
 package syntax
 
-import cats.data.{ Validated, ValidatedNel }
+import cats.data.{Validated, ValidatedNel}
 
 trait ValidatedSyntax {
   implicit def validatedIdSyntax[A](a: A): ValidatedIdSyntax[A] = new ValidatedIdSyntax(a)

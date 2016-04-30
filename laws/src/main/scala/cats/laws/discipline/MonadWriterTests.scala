@@ -9,22 +9,21 @@ import org.scalacheck.Prop.forAll
 trait MonadWriterTests[F[_], W] extends MonadTests[F] {
   def laws: MonadWriterLaws[F, W]
 
-  def monadWriter[A: Arbitrary: Eq, B: Arbitrary: Eq, C: Arbitrary: Eq](implicit
-    ArbFA: Arbitrary[F[A]],
-    ArbFB: Arbitrary[F[B]],
-    ArbFC: Arbitrary[F[C]],
-    ArbFAtoB: Arbitrary[F[A => B]],
-    ArbFBtoC: Arbitrary[F[B => C]],
-    EqFA: Eq[F[A]],
-    EqFAW: Eq[F[(W, A)]],
-    EqFB: Eq[F[B]],
-    EqFC: Eq[F[C]],
-    EqFU: Eq[F[Unit]],
-    EqFABC: Eq[F[(A, B, C)]],
-    WA: Arbitrary[W],
-    WM: Monoid[W],
-    iso: Isomorphisms[F]
-  ): RuleSet =
+  def monadWriter[A : Arbitrary : Eq, B : Arbitrary : Eq, C : Arbitrary : Eq](
+      implicit ArbFA: Arbitrary[F[A]],
+      ArbFB: Arbitrary[F[B]],
+      ArbFC: Arbitrary[F[C]],
+      ArbFAtoB: Arbitrary[F[A => B]],
+      ArbFBtoC: Arbitrary[F[B => C]],
+      EqFA: Eq[F[A]],
+      EqFAW: Eq[F[(W, A)]],
+      EqFB: Eq[F[B]],
+      EqFC: Eq[F[C]],
+      EqFU: Eq[F[Unit]],
+      EqFABC: Eq[F[(A, B, C)]],
+      WA: Arbitrary[W],
+      WM: Monoid[W],
+      iso: Isomorphisms[F]): RuleSet =
     new RuleSet {
       def name = "monadWriter"
       def bases = Nil

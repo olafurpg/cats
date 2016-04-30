@@ -38,13 +38,13 @@ sealed abstract class Coyoneda[F[_], A] extends Serializable { self =>
 
   final def transform[G[_]](f: F ~> G): Aux[G, A, Pivot] =
     apply(f(fi))(k)
-
 }
 
 object Coyoneda {
+
   /** Lift the `Pivot` type member to a parameter. It is usually more
-    * convenient to use `Aux` than a structural type.
-    */
+   * convenient to use `Aux` than a structural type.
+   */
   type Aux[F[_], A, B] = Coyoneda[F, A] { type Pivot = B }
 
   /** `F[A]` converts to `Coyoneda[F,A]` for any `F` */
