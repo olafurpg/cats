@@ -62,7 +62,7 @@ trait ListInstances extends cats.kernel.std.ListInstances {
       override def isEmpty[A](fa: List[A]): Boolean = fa.isEmpty
     }
 
-  implicit def listShow[A:Show]: Show[List[A]] =
+  implicit def listShow[A : Show]: Show[List[A]] =
     new Show[List[A]] {
       def show(fa: List[A]): String = fa.map(_.show).mkString("List(", ", ", ")")
     }

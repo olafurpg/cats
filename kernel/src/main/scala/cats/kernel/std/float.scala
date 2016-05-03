@@ -29,8 +29,8 @@ class FloatOrder extends Order[Float] {
   def compare(x: Float, y: Float) =
     java.lang.Float.compare(x, y)
 
-  override def eqv(x:Float, y:Float) = x == y
-  override def neqv(x:Float, y:Float) = x != y
+  override def eqv(x: Float, y: Float) = x == y
+  override def neqv(x: Float, y: Float) = x != y
   override def gt(x: Float, y: Float) = x > y
   override def gteqv(x: Float, y: Float) = x >= y
   override def lt(x: Float, y: Float) = x < y

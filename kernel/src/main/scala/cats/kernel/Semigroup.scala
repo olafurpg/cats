@@ -1,7 +1,7 @@
 package cats.kernel
 
-import scala.{ specialized => sp }
-import scala.annotation.{ tailrec }
+import scala.{specialized => sp}
+import scala.annotation.{tailrec}
 
 /**
  * A semigroup is any set `A` with an associative operation (`combine`).
@@ -17,7 +17,8 @@ trait Semigroup[@sp(Int, Long, Float, Double) A] extends Any with Serializable {
    * Return `a` combined with itself `n` times.
    */
   def combineN(a: A, n: Int): A =
-    if (n <= 0) throw new IllegalArgumentException("Repeated combining for semigroups must have n > 0")
+    if (n <= 0)
+      throw new IllegalArgumentException("Repeated combining for semigroups must have n > 0")
     else repeatedCombineN(a, n)
 
   /**
@@ -25,7 +26,8 @@ trait Semigroup[@sp(Int, Long, Float, Double) A] extends Any with Serializable {
    */
   protected[this] def repeatedCombineN(a: A, n: Int): A = {
     @tailrec def loop(b: A, k: Int, extra: A): A =
-      if (k == 1) combine(b, extra) else {
+      if (k == 1) combine(b, extra)
+      else {
         val x = if ((k & 1) == 1) combine(b, extra) else extra
         loop(combine(b, b), k >>> 1, x)
       }

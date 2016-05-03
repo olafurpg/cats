@@ -38,6 +38,7 @@ trait Eq[@sp A] extends Any with Serializable { self =>
     new Eq[A] {
       def eqv(x: A, y: A) = self.eqv(x, y) && that.eqv(x, y)
     }
+
   /**
    * Return an Eq that gives the result of the or of this and that
    * Note this is idempotent
@@ -55,7 +56,6 @@ abstract class EqFunctions[E[T] <: Eq[T]] {
 
   def neqv[@sp A](x: A, y: A)(implicit ev: E[A]): Boolean =
     ev.neqv(x, y)
-
 }
 
 object Eq extends EqFunctions[Eq] {
@@ -117,9 +117,10 @@ object Eq extends EqFunctions[Eq] {
       if (es.isEmpty) None
       else {
         val materialized = es.toVector
-        Some(new Eq[A] {
-          def eqv(x: A, y: A) = materialized.forall(_.eqv(x, y))
-        })
+        Some(
+          new Eq[A] {
+        def eqv(x: A, y: A) = materialized.forall(_.eqv(x, y))
+      })
       }
   }
 
@@ -133,9 +134,10 @@ object Eq extends EqFunctions[Eq] {
       if (es.isEmpty) None
       else {
         val materialized = es.toVector
-        Some(new Eq[A] {
-          def eqv(x: A, y: A) = materialized.exists(_.eqv(x, y))
-        })
+        Some(
+          new Eq[A] {
+        def eqv(x: A, y: A) = materialized.exists(_.eqv(x, y))
+      })
       }
   }
 }

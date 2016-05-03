@@ -22,7 +22,8 @@ import simulacrum.typeclass
  *    combination operation and empty value just depend on the
  *    structure of F, but not on the structure of A.
  */
-@typeclass trait MonoidK[F[_]] extends SemigroupK[F] { self =>
+@typeclass
+trait MonoidK[F[_]] extends SemigroupK[F] { self =>
 
   /**
    * Given a type A, create an "empty" F[A] value.
@@ -47,8 +48,8 @@ import simulacrum.typeclass
     }
 }
 
-trait CompositeMonoidK[F[_],G[_]]
-  extends MonoidK[λ[α => F[G[α]]]] with CompositeSemigroupK[F, G] {
+trait CompositeMonoidK[F[_], G[_]]
+    extends MonoidK[λ[α => F[G[α]]]] with CompositeSemigroupK[F, G] {
 
   implicit def F: MonoidK[F]
 

@@ -7,7 +7,8 @@ trait ApplicativeErrorSyntax {
   implicit def applicativeErrorIdSyntax[E](e: E): ApplicativeErrorIdOps[E] =
     new ApplicativeErrorIdOps(e)
 
-  implicit def applicativeErrorSyntax[F[_, _], E, A](fa: F[E, A])(implicit F: ApplicativeError[F[E, ?], E]): ApplicativeErrorOps[F[E, ?], E, A] =
+  implicit def applicativeErrorSyntax[F[_, _], E, A](fa: F[E, A])(
+      implicit F: ApplicativeError[F[E, ?], E]): ApplicativeErrorOps[F[E, ?], E, A] =
     new ApplicativeErrorOps[F[E, ?], E, A](fa)
 }
 

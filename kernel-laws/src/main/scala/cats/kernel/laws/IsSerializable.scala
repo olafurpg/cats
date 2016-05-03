@@ -15,7 +15,8 @@ private[laws] object IsSerializable {
   def apply(): Boolean = (!Platform.isJs) && runTests.value
 
   def testSerialization[M](m: M): Prop.Result =
-    if (Platform.isJs) Result(status = Proof) else {
+    if (Platform.isJs) Result(status = Proof)
+    else {
       import java.io._
       val baos = new ByteArrayOutputStream()
       val oos = new ObjectOutputStream(baos)
@@ -28,7 +29,8 @@ private[laws] object IsSerializable {
         val m2 = ois.readObject() // just ensure we can read it back
         ois.close()
         Result(status = Proof)
-      } catch { case NonFatal(t) =>
+      } catch {
+        case NonFatal(t) =>
           Result(status = Exception(t))
       } finally {
         oos.close()

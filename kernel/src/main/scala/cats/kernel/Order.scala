@@ -171,7 +171,6 @@ object Order extends OrderFunctions {
       def compare(x: A, y: A): Int = 0
     }
 
-
   /**
    * A `Monoid[Order[A]]` can be generated for all `A` with the following
    * properties:

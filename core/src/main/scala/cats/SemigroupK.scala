@@ -20,12 +20,13 @@ import simulacrum.typeclass
  *    The combination operation just depends on the structure of F,
  *    but not the structure of A.
  */
-@typeclass trait SemigroupK[F[_]] { self =>
+@typeclass
+trait SemigroupK[F[_]] { self =>
 
   /**
    * Combine two F[A] values.
    */
-  @simulacrum.op("<+>", alias=true)
+  @simulacrum.op("<+>", alias = true)
   def combineK[A](x: F[A], y: F[A]): F[A]
 
   /**
@@ -45,8 +46,7 @@ import simulacrum.typeclass
     }
 }
 
-trait CompositeSemigroupK[F[_],G[_]]
-  extends SemigroupK[λ[α => F[G[α]]]] {
+trait CompositeSemigroupK[F[_], G[_]] extends SemigroupK[λ[α => F[G[α]]]] {
 
   implicit def F: SemigroupK[F]
 

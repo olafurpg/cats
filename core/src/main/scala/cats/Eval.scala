@@ -71,7 +71,7 @@ sealed abstract class Eval[A] extends Serializable { self =>
    */
   def flatMap[B](f: A => Eval[B]): Eval[B] =
     this match {
-      case c: Eval.Compute[A] =>
+      case c: Eval.Compute [A] =>
         new Eval.Compute[B] {
           type Start = c.Start
           val start = c.start
@@ -80,9 +80,9 @@ sealed abstract class Eval[A] extends Serializable { self =>
               type Start = A
               val start = () => c.run(s)
               val run = f
-            }
+          }
         }
-      case c: Eval.Call[A] =>
+      case c: Eval.Call [A] =>
         new Eval.Compute[B] {
           type Start = A
           val start = c.thunk
@@ -106,7 +106,6 @@ sealed abstract class Eval[A] extends Serializable { self =>
   def memoize: Eval[A]
 }
 
-
 /**
  * Construct an eager Eval[A] instance.
  *
@@ -118,7 +117,6 @@ sealed abstract class Eval[A] extends Serializable { self =>
 final case class Now[A](value: A) extends Eval[A] {
   def memoize: Eval[A] = this
 }
-
 
 /**
  * Construct a lazy Eval[A] instance.
@@ -227,11 +225,12 @@ object Eval extends EvalInstances {
   }
 
   object Call {
+
     /** Collapse the call stack for eager evaluations */
     @tailrec private def loop[A](fa: Eval[A]): Eval[A] = fa match {
-      case call: Eval.Call[A] =>
+      case call: Eval.Call [A] =>
         loop(call.thunk())
-      case compute: Eval.Compute[A] =>
+      case compute: Eval.Compute [A] =>
         new Eval.Compute[A] {
           type Start = compute.Start
           val start: () => Eval[Start] = () => compute.start()
@@ -272,12 +271,11 @@ object Eval extends EvalInstances {
       type C = Any => Eval[Any]
       @tailrec def loop(curr: L, fs: List[C]): Any =
         curr match {
-          case c: Compute[_] =>
+          case c: Compute [_] =>
             c.start() match {
-              case cc: Compute[_] =>
-                loop(
-                  cc.start().asInstanceOf[L],
-                  cc.run.asInstanceOf[C] :: c.run.asInstanceOf[C] :: fs)
+              case cc: Compute [_] =>
+                loop(cc.start().asInstanceOf[L],
+                     cc.run.asInstanceOf[C] :: c.run.asInstanceOf[C] :: fs)
               case xx =>
                 loop(c.run(xx.value).asInstanceOf[L], fs)
             }
@@ -294,45 +292,44 @@ object Eval extends EvalInstances {
 
 private[cats] trait EvalInstances extends EvalInstances0 {
 
-  implicit val evalBimonad: Bimonad[Eval] =
-    new Bimonad[Eval] {
-      override def map[A, B](fa: Eval[A])(f: A => B): Eval[B] = fa.map(f)
-      def pure[A](a: A): Eval[A] = Now(a)
-      override def pureEval[A](la: Eval[A]): Eval[A] = la
-      def flatMap[A, B](fa: Eval[A])(f: A => Eval[B]): Eval[B] = fa.flatMap(f)
-      def extract[A](la: Eval[A]): A = la.value
-      def coflatMap[A, B](fa: Eval[A])(f: Eval[A] => B): Eval[B] = Later(f(fa))
-    }
+  implicit val evalBimonad: Bimonad[Eval] = new Bimonad[Eval] {
+    override def map[A, B](fa: Eval[A])(f: A => B): Eval[B] = fa.map(f)
+    def pure[A](a: A): Eval[A] = Now(a)
+    override def pureEval[A](la: Eval[A]): Eval[A] = la
+    def flatMap[A, B](fa: Eval[A])(f: A => Eval[B]): Eval[B] = fa.flatMap(f)
+    def extract[A](la: Eval[A]): A = la.value
+    def coflatMap[A, B](fa: Eval[A])(f: Eval[A] => B): Eval[B] = Later(f(fa))
+  }
 
-  implicit def evalOrder[A: Order]: Order[Eval[A]] =
+  implicit def evalOrder[A : Order]: Order[Eval[A]] =
     new Order[Eval[A]] {
       def compare(lx: Eval[A], ly: Eval[A]): Int =
         lx.value compare ly.value
     }
 
-  implicit def evalGroup[A: Group]: Group[Eval[A]] =
+  implicit def evalGroup[A : Group]: Group[Eval[A]] =
     new EvalGroup[A] { val algebra: Group[A] = Group[A] }
 }
 
 private[cats] trait EvalInstances0 extends EvalInstances1 {
-  implicit def evalPartialOrder[A: PartialOrder]: PartialOrder[Eval[A]] =
+  implicit def evalPartialOrder[A : PartialOrder]: PartialOrder[Eval[A]] =
     new PartialOrder[Eval[A]] {
       def partialCompare(lx: Eval[A], ly: Eval[A]): Double =
         lx.value partialCompare ly.value
     }
 
-  implicit def evalMonoid[A: Monoid]: Monoid[Eval[A]] =
+  implicit def evalMonoid[A : Monoid]: Monoid[Eval[A]] =
     new EvalMonoid[A] { val algebra = Monoid[A] }
 }
 
 private[cats] trait EvalInstances1 {
-  implicit def evalEq[A: Eq]: Eq[Eval[A]] =
+  implicit def evalEq[A : Eq]: Eq[Eval[A]] =
     new Eq[Eval[A]] {
       def eqv(lx: Eval[A], ly: Eval[A]): Boolean =
         lx.value === ly.value
     }
 
-  implicit def evalSemigroup[A: Semigroup]: Semigroup[Eval[A]] =
+  implicit def evalSemigroup[A : Semigroup]: Semigroup[Eval[A]] =
     new EvalSemigroup[A] { val algebra = Semigroup[A] }
 }
 

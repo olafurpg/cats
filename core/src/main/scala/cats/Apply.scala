@@ -7,7 +7,7 @@ import simulacrum.typeclass
  *
  * Must obey the laws defined in cats.laws.ApplyLaws.
  */
-@typeclass(excludeParents=List("ApplyArityFunctions"))
+@typeclass(excludeParents = List("ApplyArityFunctions"))
 trait Apply[F[_]] extends Functor[F] with Cartesian[F] with ApplyArityFunctions[F] { self =>
 
   /**
@@ -48,11 +48,9 @@ trait Apply[F[_]] extends Functor[F] with Cartesian[F] with ApplyArityFunctions[
       def F: Apply[F] = self
       def G: Apply[G] = GG
     }
-
 }
 
-trait CompositeApply[F[_], G[_]]
-  extends Apply[Lambda[X => F[G[X]]]] with Functor.Composite[F, G] {
+trait CompositeApply[F[_], G[_]] extends Apply[Lambda[X => F[G[X]]]] with Functor.Composite[F, G] {
   def F: Apply[F]
   def G: Apply[G]
 

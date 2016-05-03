@@ -1,11 +1,10 @@
 package cats
 
-
 /**
  * A typeclass which abstracts over the ability to lift an M[A] into a
  * MonadTransformer
  */
-trait TransLift[MT[_[_], _]] {
+trait TransLift[MT[_ [_], _]] {
 
   /**
    * The typeclass which constrains liftT as a function of the type
@@ -14,7 +13,7 @@ trait TransLift[MT[_[_], _]] {
    * be `type TC[M[_]] = Trivial`.  A more common constraint might be
    * `type TC[M[_]] = Monad[M]`.
    */
-  type TC[M[_]]
+  type TC [M[_]]
 
   /**
    * Lift a value of type M[A] into a monad transformer MT[M, A]
@@ -23,6 +22,6 @@ trait TransLift[MT[_[_], _]] {
 }
 
 object TransLift {
-  type Aux[MT[_[_], _], TC0[_[_]]] = TransLift[MT] { type TC[M[_]] = TC0[M] }
-  type AuxId[MT[_[_], _]] = Aux[MT, Trivial.PH1]
+  type Aux[MT[_ [_], _], TC0[_ [_]]] = TransLift[MT] { type TC[M[_]] = TC0[M] }
+  type AuxId[MT[_ [_], _]] = Aux[MT, Trivial.PH1]
 }

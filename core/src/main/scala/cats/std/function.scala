@@ -7,18 +7,17 @@ import cats.functor.Contravariant
 
 private[std] sealed trait Function0Instances {
 
-  implicit val function0Instance: Bimonad[Function0] =
-    new Bimonad[Function0] {
-      def extract[A](x: () => A): A = x()
+  implicit val function0Instance: Bimonad[Function0] = new Bimonad[Function0] {
+    def extract[A](x: () => A): A = x()
 
-      def coflatMap[A, B](fa: () => A)(f: (() => A) => B): () => B =
-        () => f(fa)
+    def coflatMap[A, B](fa: () => A)(f: (() => A) => B): () => B =
+      () => f(fa)
 
-      def pure[A](x: A): () => A = () => x
+    def pure[A](x: A): () => A = () => x
 
-      def flatMap[A, B](fa: () => A)(f: A => () => B): () => B =
-        () => f(fa())()
-    }
+    def flatMap[A, B](fa: () => A)(f: A => () => B): () => B =
+      () => f(fa())()
+  }
 
   implicit def eqFunction0[A](implicit A: Eq[A]): Eq[() => A] =
     new Eq[() => A] {
@@ -48,42 +47,40 @@ private[std] sealed trait Function1Instances extends Function1Instances0 {
         f.compose(fa)
     }
 
-  implicit val function1Instance: Choice[Function1] with Arrow[Function1] =
-    new Choice[Function1] with Arrow[Function1] {
-      def choice[A, B, C](f: A => C, g: B => C): Xor[A, B] => C =
-        _ match {
-          case Xor.Left(a) => f(a)
-          case Xor.Right(b) => g(b)
-        }
-
-      def lift[A, B](f: A => B): A => B = f
-
-      def first[A, B, C](fa: A => B): ((A, C)) => (B, C) = {
-        case (a, c) => (fa(a), c)
+  implicit val function1Instance: Choice[Function1] with Arrow[Function1] = new Choice[Function1]
+  with Arrow[Function1] {
+    def choice[A, B, C](f: A => C, g: B => C): Xor[A, B] => C =
+      _ match {
+        case Xor.Left(a) => f(a)
+        case Xor.Right(b) => g(b)
       }
 
-      def id[A]: A => A = a => a
+    def lift[A, B](f: A => B): A => B = f
 
-      override def split[A, B, C, D](f: A => B, g: C => D): ((A, C)) => (B, D) = {
-        case (a, c) => (f(a), g(c))
-      }
-
-      def compose[A, B, C](f: B => C, g: A => B): A => C = f.compose(g)
+    def first[A, B, C](fa: A => B): ((A, C)) => (B, C) = {
+      case (a, c) => (fa(a), c)
     }
 
-  implicit def function1Monoid[A,B](implicit M: Monoid[B]): Monoid[A => B] =
+    def id[A]: A => A = a => a
+
+    override def split[A, B, C, D](f: A => B, g: C => D): ((A, C)) => (B, D) = {
+      case (a, c) => (f(a), g(c))
+    }
+
+    def compose[A, B, C](f: B => C, g: A => B): A => C = f.compose(g)
+  }
+
+  implicit def function1Monoid[A, B](implicit M: Monoid[B]): Monoid[A => B] =
     new Function1Monoid[A, B] { def B: Monoid[B] = M }
 
-  implicit val function1MonoidK: MonoidK[Lambda[A => A => A]] =
-    new Function1MonoidK {}
+  implicit val function1MonoidK: MonoidK[Lambda[A => A => A]] = new Function1MonoidK {}
 }
 
 private[std] sealed trait Function1Instances0 {
-  implicit def function1Semigroup[A,B](implicit S: Semigroup[B]): Semigroup[A => B] =
+  implicit def function1Semigroup[A, B](implicit S: Semigroup[B]): Semigroup[A => B] =
     new Function1Semigroup[A, B] { def B: Semigroup[B] = S }
 
-  implicit val function1SemigroupK: SemigroupK[Lambda[A => A => A]] =
-    new Function1SemigroupK {}
+  implicit val function1SemigroupK: SemigroupK[Lambda[A => A => A]] = new Function1SemigroupK {}
 }
 
 private[std] sealed trait Function1Semigroup[A, B] extends Semigroup[A => B] {
@@ -94,7 +91,8 @@ private[std] sealed trait Function1Semigroup[A, B] extends Semigroup[A => B] {
   }
 }
 
-private[std] sealed trait Function1Monoid[A, B] extends Monoid[A => B] with Function1Semigroup[A, B] {
+private[std] sealed trait Function1Monoid[A, B]
+    extends Monoid[A => B] with Function1Semigroup[A, B] {
   implicit def B: Monoid[B]
 
   override def empty: A => B = _ => B.empty
@@ -104,10 +102,9 @@ private[std] sealed trait Function1SemigroupK extends SemigroupK[Lambda[A => A =
   override def combineK[A](x: A => A, y: A => A): A => A = x compose y
 }
 
-private[std] sealed trait Function1MonoidK extends MonoidK[Lambda[A => A => A]] with Function1SemigroupK {
+private[std] sealed trait Function1MonoidK
+    extends MonoidK[Lambda[A => A => A]] with Function1SemigroupK {
   override def empty[A]: A => A = identity[A]
 }
 
-trait FunctionInstances
-  extends Function0Instances
-  with Function1Instances
+trait FunctionInstances extends Function0Instances with Function1Instances

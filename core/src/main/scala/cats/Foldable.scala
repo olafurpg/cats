@@ -22,7 +22,8 @@ import simulacrum.typeclass
  *
  * See: [[http://www.cs.nott.ac.uk/~pszgmh/fold.pdf A tutorial on the universality and expressiveness of fold]]
  */
-@typeclass trait Foldable[F[_]] { self =>
+@typeclass
+trait Foldable[F[_]] { self =>
 
   /**
    * Left associative fold on 'F' using the function 'f'.
@@ -67,7 +68,7 @@ import simulacrum.typeclass
   /**
    * Alias for [[fold]].
    */
-  def combineAll[A: Monoid](fa: F[A]): A = fold(fa)
+  def combineAll[A : Monoid](fa: F[A]): A = fold(fa)
 
   /**
    * Fold implemented by mapping `A` values into `B` and then
@@ -108,7 +109,9 @@ import simulacrum.typeclass
    */
   def traverse_[G[_], A, B](fa: F[A])(f: A => G[B])(implicit G: Applicative[G]): G[Unit] =
     foldLeft(fa, G.pure(())) { (acc, a) =>
-      G.map2(acc, f(a)) { (_, _) => () }
+      G.map2(acc, f(a)) { (_, _) =>
+        ()
+      }
     }
 
   /**
@@ -196,7 +199,6 @@ import simulacrum.typeclass
    */
   def foldK[G[_], A](fga: F[G[A]])(implicit G: MonoidK[G]): G[A] =
     fold(fga)(G.algebra)
-
 
   /**
    * Find the first element matching the predicate, if one exists.

@@ -19,9 +19,10 @@ trait BaseLaws[A] extends Laws {
   implicit def Arb: Arbitrary[A]
 
   class BaseRuleSet(
-    val name: String,
-    val parent: Option[RuleSet],
-    val bases: Seq[(String, Laws#RuleSet)],
-    val props: (String, Prop)*
-  ) extends RuleSet with HasOneParent
+      val name: String,
+      val parent: Option[RuleSet],
+      val bases: Seq[(String, Laws#RuleSet)],
+      val props: (String, Prop)*
+  )
+      extends RuleSet with HasOneParent
 }

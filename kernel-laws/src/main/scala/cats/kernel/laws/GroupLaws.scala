@@ -84,10 +84,11 @@ trait GroupLaws[A] extends Laws {
   // property classes
 
   class GroupProperties(
-    val name: String,
-    val parents: Seq[GroupProperties],
-    val props: (String, Prop)*
-  ) extends RuleSet {
+      val name: String,
+      val parents: Seq[GroupProperties],
+      val props: (String, Prop)*
+  )
+      extends RuleSet {
     val bases = Nil
   }
 }

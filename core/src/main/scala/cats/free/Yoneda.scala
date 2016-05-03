@@ -48,4 +48,3 @@ object Yoneda {
       def apply[B](f: A => B): F[B] = F.map(fa)(f)
     }
 }
-

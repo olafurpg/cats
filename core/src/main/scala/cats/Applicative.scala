@@ -13,7 +13,8 @@ import cats.std.list._
  *
  * Must obey the laws defined in cats.laws.ApplicativeLaws.
  */
-@typeclass trait Applicative[F[_]] extends Apply[F] { self =>
+@typeclass
+trait Applicative[F[_]] extends Apply[F] { self =>
 
   /**
    * `pure` lifts any value into the Applicative Functor.
@@ -33,8 +34,8 @@ import cats.std.list._
     ap(pure(f))(fa)
 
   /**
-    * Given `fa` and `n`, apply `fa` `n` times to construct an `F[List[A]]` value.
-    */
+   * Given `fa` and `n`, apply `fa` `n` times to construct an `F[List[A]]` value.
+   */
   def replicateA[A](n: Int, fa: F[A]): F[List[A]] =
     sequence(List.fill(n)(fa))
 
@@ -45,11 +46,10 @@ import cats.std.list._
    *
    * Applicative[Option].compose[List].pure(10) = Some(List(10))
    */
-  def compose[G[_]](implicit GG : Applicative[G]): Applicative[λ[α => F[G[α]]]] =
-    new CompositeApplicative[F,G] {
+  def compose[G[_]](implicit GG: Applicative[G]): Applicative[λ[α => F[G[α]]]] =
+    new CompositeApplicative[F, G] {
       implicit def F: Applicative[F] = self
       implicit def G: Applicative[G] = GG
-
     }
 
   def traverse[A, G[_], B](value: G[A])(f: A => F[B])(implicit G: Traverse[G]): F[G[B]] =
@@ -57,11 +57,10 @@ import cats.std.list._
 
   def sequence[G[_], A](as: G[F[A]])(implicit G: Traverse[G]): F[G[A]] =
     G.sequence(as)(this)
-  
 }
 
-trait CompositeApplicative[F[_],G[_]]
-    extends Applicative[λ[α => F[G[α]]]] with CompositeApply[F,G] {
+trait CompositeApplicative[F[_], G[_]]
+    extends Applicative[λ[α => F[G[α]]]] with CompositeApply[F, G] {
 
   implicit def F: Applicative[F]
   implicit def G: Applicative[G]

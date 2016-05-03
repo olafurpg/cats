@@ -8,6 +8,7 @@ import cats.functor.Contravariant
  * [[Const]] can be seen as a type level version of `Function.const[A, B]: A => B => A`
  */
 final case class Const[A, B](getConst: A) {
+
   /**
    * changes the type of the second type parameter
    */
@@ -39,12 +40,12 @@ object Const extends ConstInstances {
 }
 
 private[data] sealed abstract class ConstInstances extends ConstInstances0 {
-  implicit def constOrder[A: Order, B]: Order[Const[A, B]] = new Order[Const[A, B]] {
+  implicit def constOrder[A : Order, B]: Order[Const[A, B]] = new Order[Const[A, B]] {
     def compare(x: Const[A, B], y: Const[A, B]): Int =
       x compare y
   }
 
-  implicit def constShow[A: Show, B]: Show[Const[A, B]] = new Show[Const[A, B]] {
+  implicit def constShow[A : Show, B]: Show[Const[A, B]] = new Show[Const[A, B]] {
     def show(f: Const[A, B]): String = f.show
   }
 
@@ -62,7 +63,7 @@ private[data] sealed abstract class ConstInstances extends ConstInstances0 {
     def foldRight[A, B](fa: Const[C, A], lb: Eval[B])(f: (A, Eval[B]) => Eval[B]): Eval[B] = lb
   }
 
-  implicit def constMonoid[A: Monoid, B]: Monoid[Const[A, B]] = new Monoid[Const[A, B]]{
+  implicit def constMonoid[A : Monoid, B]: Monoid[Const[A, B]] = new Monoid[Const[A, B]] {
     def empty: Const[A, B] =
       Const.empty
 
@@ -70,49 +71,52 @@ private[data] sealed abstract class ConstInstances extends ConstInstances0 {
       x combine y
   }
 
-  implicit val constBifoldable: Bifoldable[Const] =
-    new Bifoldable[Const] {
-      def bifoldLeft[A, B, C](fab: Const[A, B], c: C)(f: (C, A) => C, g: (C, B) => C): C =
-        f(c, fab.getConst)
+  implicit val constBifoldable: Bifoldable[Const] = new Bifoldable[Const] {
+    def bifoldLeft[A, B, C](fab: Const[A, B], c: C)(f: (C, A) => C, g: (C, B) => C): C =
+      f(c, fab.getConst)
 
-      def bifoldRight[A, B, C](fab: Const[A, B], c: Eval[C])(f: (A, Eval[C]) => Eval[C], g: (B, Eval[C]) => Eval[C]): Eval[C] =
-        f(fab.getConst, c)
-    }
+    def bifoldRight[A, B, C](fab: Const[A, B], c: Eval[C])(
+        f: (A, Eval[C]) => Eval[C], g: (B, Eval[C]) => Eval[C]): Eval[C] =
+      f(fab.getConst, c)
+  }
 }
 
 private[data] sealed abstract class ConstInstances0 extends ConstInstances1 {
 
-  implicit def constSemigroup[A: Semigroup, B]: Semigroup[Const[A, B]] = new Semigroup[Const[A, B]] {
-    def combine(x: Const[A, B], y: Const[A, B]): Const[A, B] = x combine y
-  }
+  implicit def constSemigroup[A : Semigroup, B]: Semigroup[Const[A, B]] =
+    new Semigroup[Const[A, B]] {
+      def combine(x: Const[A, B], y: Const[A, B]): Const[A, B] = x combine y
+    }
 
-  implicit def constPartialOrder[A: PartialOrder, B]: PartialOrder[Const[A, B]] = new PartialOrder[Const[A, B]]{
-    def partialCompare(x: Const[A, B], y: Const[A, B]): Double =
-      x partialCompare y
-  }
+  implicit def constPartialOrder[A : PartialOrder, B]: PartialOrder[Const[A, B]] =
+    new PartialOrder[Const[A, B]] {
+      def partialCompare(x: Const[A, B], y: Const[A, B]): Double =
+        x partialCompare y
+    }
 
-  implicit def constApplicative[C: Monoid]: Applicative[Const[C, ?]] = new Applicative[Const[C, ?]] {
-    def pure[A](x: A): Const[C, A] =
-      Const.empty
+  implicit def constApplicative[C : Monoid]: Applicative[Const[C, ?]] =
+    new Applicative[Const[C, ?]] {
+      def pure[A](x: A): Const[C, A] =
+        Const.empty
 
-    def ap[A, B](f: Const[C, A => B])(fa: Const[C, A]): Const[C, B] =
-      f.retag[B] combine fa.retag[B]
+      def ap[A, B](f: Const[C, A => B])(fa: Const[C, A]): Const[C, B] =
+        f.retag[B] combine fa.retag[B]
 
-    override def map[A, B](fa: Const[C, A])(f: A => B): Const[C, B] =
-      fa.retag[B]
+      override def map[A, B](fa: Const[C, A])(f: A => B): Const[C, B] =
+        fa.retag[B]
 
-    override def product[A, B](fa: Const[C, A], fb: Const[C, B]): Const[C, (A, B)] =
-      fa.retag[(A, B)] combine fb.retag[(A, B)]
-  }
+      override def product[A, B](fa: Const[C, A], fb: Const[C, B]): Const[C, (A, B)] =
+        fa.retag[(A, B)] combine fb.retag[(A, B)]
+    }
 }
 
 private[data] sealed abstract class ConstInstances1 {
-  implicit def constEq[A: Eq, B]: Eq[Const[A, B]] = new Eq[Const[A, B]] {
+  implicit def constEq[A : Eq, B]: Eq[Const[A, B]] = new Eq[Const[A, B]] {
     def eqv(x: Const[A, B], y: Const[A, B]): Boolean =
       x === y
   }
 
-  implicit def constApply[C: Semigroup]: Apply[Const[C, ?]] = new Apply[Const[C, ?]] {
+  implicit def constApply[C : Semigroup]: Apply[Const[C, ?]] = new Apply[Const[C, ?]] {
     def ap[A, B](f: Const[C, A => B])(fa: Const[C, A]): Const[C, B] =
       fa.retag[B] combine f.retag[B]
 

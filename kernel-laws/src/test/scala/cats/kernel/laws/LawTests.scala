@@ -6,9 +6,9 @@ import catalysts.macros.TypeTagM
 
 import cats.kernel.std.all._
 
-import org.typelevel.discipline.{ Laws }
+import org.typelevel.discipline.{Laws}
 import org.typelevel.discipline.scalatest.Discipline
-import org.scalacheck.{ Arbitrary }
+import org.scalacheck.{Arbitrary}
 import Arbitrary.arbitrary
 import org.scalatest.FunSuite
 import scala.util.Random
@@ -19,11 +19,11 @@ class LawTests extends FunSuite with Discipline {
   final val PropMaxSize = if (Platform.isJs) 10 else 100
   final val PropMinSuccessful = if (Platform.isJs) 10 else 100
 
-  implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
-    PropertyCheckConfig(maxSize = PropMaxSize, minSuccessful = PropMinSuccessful)
+  implicit override val generatorDrivenConfig: PropertyCheckConfiguration = PropertyCheckConfig(
+    maxSize = PropMaxSize, minSuccessful = PropMinSuccessful)
 
-  implicit def orderLaws[A: Eq: Arbitrary] = OrderLaws[A]
-  implicit def groupLaws[A: Eq: Arbitrary] = GroupLaws[A]
+  implicit def orderLaws[A : Eq : Arbitrary] = OrderLaws[A]
+  implicit def groupLaws[A : Eq : Arbitrary] = GroupLaws[A]
 
   laws[OrderLaws, Map[String, HasEq[Int]]].check(_.eqv)
   laws[OrderLaws, List[HasEq[Int]]].check(_.eqv)
@@ -75,10 +75,9 @@ class LawTests extends FunSuite with Discipline {
   laws[GroupLaws, Unit].check(_.boundedSemilattice)
   // esoteric machinery follows...
 
-  implicit lazy val band: Band[(Int, Int)] =
-    new Band[(Int, Int)] {
-      def combine(a: (Int, Int), b: (Int, Int)) = (a._1, b._2)
-    }
+  implicit lazy val band: Band[(Int, Int)] = new Band[(Int, Int)] {
+    def combine(a: (Int, Int), b: (Int, Int)) = (a._1, b._2)
+  }
 
   {
     // In order to check the monoid laws for `Order[N]`, we need
@@ -88,16 +87,22 @@ class LawTests extends FunSuite with Discipline {
     final case class N(n: Int) { require(n >= 0 && n < nMax) }
     // The arbitrary `Order[N]` values are created by mapping N values to random
     // integers.
-    implicit val arbNOrder: Arbitrary[Order[N]] = Arbitrary(arbitrary[Int].map { seed =>
-      val order = new Random(seed).shuffle(Vector.range(0, nMax))
-      Order.by { (n: N) => order(n.n) }
-    })
+    implicit val arbNOrder: Arbitrary[Order[N]] = Arbitrary(
+      arbitrary[Int].map { seed =>
+    val order = new Random(seed).shuffle(Vector.range(0, nMax))
+    Order.by { (n: N) =>
+      order(n.n)
+    }
+  })
     // The arbitrary `Eq[N]` values are created by mapping N values to random
     // integers.
-    implicit val arbNEq: Arbitrary[Eq[N]] = Arbitrary(arbitrary[Int].map { seed =>
-      val mapping = new Random(seed).shuffle(Vector.range(0, nMax))
-      Eq.by { (n: N) => mapping(n.n) }
-    })
+    implicit val arbNEq: Arbitrary[Eq[N]] = Arbitrary(
+      arbitrary[Int].map { seed =>
+    val mapping = new Random(seed).shuffle(Vector.range(0, nMax))
+    Eq.by { (n: N) =>
+      mapping(n.n)
+    }
+  })
     // needed because currently we don't have Vector instances
     implicit val vectorNEq: Eq[Vector[N]] = Eq.fromUniversalEquals
     // The `Eq[Order[N]]` instance enumerates all possible `N` values in a
@@ -108,8 +113,11 @@ class LawTests extends FunSuite with Discipline {
     }
     implicit val NEqEq: Eq[Eq[N]] = new Eq[Eq[N]] {
       def eqv(a: Eq[N], b: Eq[N]) =
-        Iterator.tabulate(nMax)(N)
-          .flatMap { x => Iterator.tabulate(nMax)(N).map((x, _)) }
+        Iterator
+          .tabulate(nMax)(N)
+          .flatMap { x =>
+            Iterator.tabulate(nMax)(N).map((x, _))
+          }
           .forall { case (x, y) => a.eqv(x, y) == b.eqv(x, y) }
     }
 
@@ -130,18 +138,18 @@ class LawTests extends FunSuite with Discipline {
   case class HasEq[A](a: A)
 
   object HasEq {
-    implicit def hasEq[A: Eq]: Eq[HasEq[A]] =
+    implicit def hasEq[A : Eq]: Eq[HasEq[A]] =
       Eq[A].on(_.a)
-    implicit def hasEqArbitrary[A: Arbitrary]: Arbitrary[HasEq[A]] =
+    implicit def hasEqArbitrary[A : Arbitrary]: Arbitrary[HasEq[A]] =
       Arbitrary(arbitrary[A].map(HasEq(_)))
   }
 
   case class HasPartialOrder[A](a: A)
 
   object HasPartialOrder {
-    implicit def hasPartialOrder[A: PartialOrder]: PartialOrder[HasPartialOrder[A]] =
+    implicit def hasPartialOrder[A : PartialOrder]: PartialOrder[HasPartialOrder[A]] =
       PartialOrder[A].on(_.a)
-    implicit def hasPartialOrderArbitrary[A: Arbitrary]: Arbitrary[HasPartialOrder[A]] =
+    implicit def hasPartialOrderArbitrary[A : Arbitrary]: Arbitrary[HasPartialOrder[A]] =
       Arbitrary(arbitrary[A].map(HasPartialOrder(_)))
   }
 
@@ -152,7 +160,7 @@ class LawTests extends FunSuite with Discipline {
   private[laws] def laws[L[_] <: Laws, A](implicit lws: L[A], tag: TypeTagM[A]): LawChecker[L[A]] =
     laws[L, A]("")
 
-  private[laws] def laws[L[_] <: Laws, A](extraTag: String)(implicit laws: L[A], tag: TypeTagM[A]): LawChecker[L[A]] =
-    LawChecker("[" + tag.name.toString + (if(extraTag != "") "@@" + extraTag else "") + "]", laws)
-
+  private[laws] def laws[L[_] <: Laws, A](extraTag: String)(
+      implicit laws: L[A], tag: TypeTagM[A]): LawChecker[L[A]] =
+    LawChecker("[" + tag.name.toString + (if (extraTag != "") "@@" + extraTag else "") + "]", laws)
 }

@@ -8,6 +8,7 @@ import cats.data.{Xor, XorT}
  * This type class allows one to abstract over error-handling applicatives.
  */
 trait ApplicativeError[F[_], E] extends Applicative[F] {
+
   /**
    * Lift an error into the `F` context.
    */
@@ -41,9 +42,10 @@ trait ApplicativeError[F[_], E] extends Applicative[F] {
    *
    * All non-fatal errors should be handled by this method.
    */
-  def attempt[A](fa: F[A]): F[E Xor A] = handleErrorWith(
-    map(fa)(Xor.right[E, A])
-  )(e => pure(Xor.left(e)))
+  def attempt[A](fa: F[A]): F[E Xor A] =
+    handleErrorWith(
+      map(fa)(Xor.right[E, A])
+    )(e => pure(Xor.left(e)))
 
   /**
    * Similar to [[attempt]], but wraps the result in a [[cats.data.XorT]] for
@@ -60,8 +62,7 @@ trait ApplicativeError[F[_], E] extends Applicative[F] {
    * `F[A]` values.
    */
   def recover[A](fa: F[A])(pf: PartialFunction[E, A]): F[A] =
-    handleErrorWith(fa)(e =>
-      (pf andThen pure) applyOrElse(e, raiseError))
+    handleErrorWith(fa)(e => (pf andThen pure) applyOrElse (e, raiseError))
 
   /**
    * Recover from certain errors by mapping them to an `F[A]` value.
@@ -72,8 +73,7 @@ trait ApplicativeError[F[_], E] extends Applicative[F] {
    * values.
    */
   def recoverWith[A](fa: F[A])(pf: PartialFunction[E, F[A]]): F[A] =
-    handleErrorWith(fa)(e =>
-      pf applyOrElse(e, raiseError))
+    handleErrorWith(fa)(e => pf applyOrElse (e, raiseError))
 }
 
 object ApplicativeError {

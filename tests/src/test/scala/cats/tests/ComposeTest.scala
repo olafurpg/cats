@@ -11,7 +11,8 @@ class ComposeTest extends CatsSuite {
   val functionCompose = Compose[Function1]
   type Endo[A] = Function1[A, A]
 
-  checkAll("Compose[Function1].algebraK", SemigroupKTests[Endo](functionCompose.algebraK).semigroupK[Int])
+  checkAll("Compose[Function1].algebraK",
+           SemigroupKTests[Endo](functionCompose.algebraK).semigroupK[Int])
   checkAll("Compose[Function1].algebraK", SerializableTests.serializable(functionCompose.algebraK))
 
   val functionAlgebra = functionCompose.algebra[Int]

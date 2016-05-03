@@ -10,11 +10,13 @@ import cats.functor.Contravariant
  * made a toString method, a Show instance will only exist if someone
  * explicitly provided one.
  */
-@typeclass trait Show[T] {
+@typeclass
+trait Show[T] {
   def show(f: T): String
 }
 
 object Show {
+
   /** creates an instance of [[Show]] using the provided function */
   def show[A](f: A => String): Show[A] = new Show[A] {
     def show(a: A): String = f(a)

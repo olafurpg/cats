@@ -25,8 +25,8 @@ sealed abstract class FreeApplicative[F[_], A] extends Product with Serializable
     }
 
   /** Interprets/Runs the sequence of operations using the semantics of Applicative G
-    * Tail recursive only if G provides tail recursive interpretation (ie G is FreeMonad)
-    */
+   * Tail recursive only if G provides tail recursive interpretation (ie G is FreeMonad)
+   */
   final def foldMap[G[_]](f: F ~> G)(implicit G: Applicative[G]): G[A] =
     this match {
       case Pure(a) => G.pure(a)
@@ -34,8 +34,8 @@ sealed abstract class FreeApplicative[F[_], A] extends Product with Serializable
     }
 
   /** Interpret/run the operations using the semantics of `Applicative[F]`.
-    * Tail recursive only if `F` provides tail recursive interpretation.
-    */
+   * Tail recursive only if `F` provides tail recursive interpretation.
+   */
   final def fold(implicit F: Applicative[F]): F[A] =
     foldMap(NaturalTransformation.id[F])
 
@@ -48,10 +48,10 @@ sealed abstract class FreeApplicative[F[_], A] extends Product with Serializable
     }
 
   /** Interpret this algebra into a Monoid */
-  final def analyze[M:Monoid](f: F ~> λ[α => M]): M =
+  final def analyze[M : Monoid](f: F ~> λ[α => M]): M =
     foldMap[Const[M, ?]](new (F ~> Const[M, ?]) {
-      def apply[X](x: F[X]): Const[M,X] = Const(f(x))
-    }).getConst
+    def apply[X](x: F[X]): Const[M, X] = Const(f(x))
+  }).getConst
 
   /** Compile this FreeApplicative algebra into a Free algebra. */
   final def monad: Free[F, A] =
@@ -79,7 +79,8 @@ object FreeApplicative {
 
   implicit final def freeApplicative[S[_]]: Applicative[FA[S, ?]] = {
     new Applicative[FA[S, ?]] {
-      override def product[A, B](fa: FA[S, A], fb: FA[S, B]): FA[S, (A, B)] = ap(fa.map((a: A) => (b: B) => (a, b)))(fb)
+      override def product[A, B](fa: FA[S, A], fb: FA[S, B]): FA[S, (A, B)] =
+        ap(fa.map((a: A) => (b: B) => (a, b)))(fb)
       override def map[A, B](fa: FA[S, A])(f: A => B): FA[S, B] = fa.map(f)
       override def ap[A, B](f: FA[S, A => B])(fa: FA[S, A]): FA[S, B] = fa.ap(f)
       def pure[A](a: A): FA[S, A] = Pure(a)

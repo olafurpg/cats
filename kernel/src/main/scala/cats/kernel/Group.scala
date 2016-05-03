@@ -1,6 +1,6 @@
 package cats.kernel
 
-import scala.{ specialized => sp }
+import scala.{specialized => sp}
 
 /**
  * A group is a monoid where each element has an inverse.
