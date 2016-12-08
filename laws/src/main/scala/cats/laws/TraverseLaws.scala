@@ -36,7 +36,7 @@ trait TraverseLaws[F[_]] extends FunctorLaws[F] with FoldableLaws[F] {
     M: Applicative[M]
   ): IsEq[(M[F[B]], N[F[B]])] = {
     type MN[Z] = (M[Z], N[Z])
-    implicit val MN = new Applicative[MN] {
+    implicit val MN: Applicative[MN] = new Applicative[MN] {
       def pure[X](x: X): MN[X] = (M.pure(x), N.pure(x))
       def ap[X, Y](f: MN[X => Y])(fa: MN[X]): MN[Y] = {
         val (fam, fan) = fa

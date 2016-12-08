@@ -163,7 +163,7 @@ object StateT extends StateTInstances {
 
 private[data] sealed trait StateTInstances extends StateTInstances1 {
   implicit def catsDataMonadStateForStateT[F[_], S](implicit F0: Monad[F]): MonadState[StateT[F, S, ?], S] =
-    new StateTMonadState[F, S] { implicit def F = F0 }
+    new StateTMonadState[F, S] { implicit def F: Monad[F] = F0 }
 
   implicit def catsDataLiftForStateT[S]: TransLift.Aux[StateT[?[_], S, ?], Applicative] =
     new StateTTransLift[S] {}
@@ -171,20 +171,20 @@ private[data] sealed trait StateTInstances extends StateTInstances1 {
 
 private[data] sealed trait StateTInstances1 extends StateTInstances2 {
   implicit def catsDataMonadCombineForStateT[F[_], S](implicit F0: MonadCombine[F]): MonadCombine[StateT[F, S, ?]] =
-    new StateTMonadCombine[F, S] { implicit def F = F0 }
+    new StateTMonadCombine[F, S] { implicit def F: MonadCombine[F] = F0 }
 }
 
 private[data] sealed trait StateTInstances2 extends StateTInstances3 {
   implicit def catsDataMonadErrorForStateT[F[_], S, E](implicit F0: MonadError[F, E]): MonadError[StateT[F, S, ?], E] =
-    new StateTMonadError[F, S, E] { implicit def F = F0 }
+    new StateTMonadError[F, S, E] { implicit def F: MonadError[F, E] = F0 }
 
   implicit def catsDataSemigroupKForStateT[F[_], S](implicit F0: Monad[F], G0: SemigroupK[F]): SemigroupK[StateT[F, S, ?]] =
-    new StateTSemigroupK[F, S] { implicit def F = F0; implicit def G = G0 }
+    new StateTSemigroupK[F, S] { implicit def F: Monad[F] = F0; implicit def G: SemigroupK[F] = G0 }
 }
 
 private[data] sealed trait StateTInstances3 {
   implicit def catsDataMonadForStateT[F[_], S](implicit F0: Monad[F]): Monad[StateT[F, S, ?]] =
-    new StateTMonad[F, S] { implicit def F = F0 }
+    new StateTMonad[F, S] { implicit def F: Monad[F] = F0 }
 }
 
 // To workaround SI-7139 `object State` needs to be defined inside the package object

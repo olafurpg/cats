@@ -112,7 +112,7 @@ final case class NonEmptyList[A](head: A, tail: List[A]) {
    * Remove duplicates. Duplicates are checked using `Order[_]` instance.
    */
   def distinct(implicit O: Order[A]): NonEmptyList[A] = {
-    implicit val ord = O.toOrdering
+    implicit val ord: Ordering[A] = O.toOrdering
 
     val buf = ListBuffer.empty[A]
     tail.foldLeft(TreeSet(head)) { (elementsSoFar, a) =>

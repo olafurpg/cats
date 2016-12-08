@@ -332,7 +332,7 @@ private[data] abstract class EitherTInstances extends EitherTInstances1 {
     }
 
   implicit def catsMonoidForEitherT[F[_], L, A](implicit F: Monoid[F[Either[L, A]]]): Monoid[EitherT[F, L, A]] =
-    new EitherTMonoid[F, L, A] { implicit val F0 = F }
+    new EitherTMonoid[F, L, A] { implicit val F0: Monoid[F[Either[L, A]]] = F }
 
 }
 
@@ -346,7 +346,7 @@ private[data] abstract class EitherTInstances1 extends EitherTInstances2 {
    */
 
   implicit def catsSemigroupForEitherT[F[_], L, A](implicit F: Semigroup[F[Either[L, A]]]): Semigroup[EitherT[F, L, A]] =
-    new EitherTSemigroup[F, L, A] { implicit val F0 = F }
+    new EitherTSemigroup[F, L, A] { implicit val F0: Semigroup[F[Either[L, A]]] = F }
 
   implicit def catsDataFoldableForEitherT[F[_], L](implicit F: Foldable[F]): Foldable[EitherT[F, L, ?]] =
     new EitherTFoldable[F, L] {
@@ -366,10 +366,10 @@ private[data] abstract class EitherTInstances1 extends EitherTInstances2 {
 
 private[data] abstract class EitherTInstances2 extends EitherTInstances3 {
   implicit def catsDataMonadErrorForEitherT[F[_], L](implicit F0: Monad[F]): MonadError[EitherT[F, L, ?], L] =
-    new EitherTMonadError[F, L] { implicit val F = F0 }
+    new EitherTMonadError[F, L] { implicit val F: Monad[F] = F0 }
 
   implicit def catsDataSemigroupKForEitherT[F[_], L](implicit F0: Monad[F]): SemigroupK[EitherT[F, L, ?]] =
-    new EitherTSemigroupK[F, L] { implicit val F = F0 }
+    new EitherTSemigroupK[F, L] { implicit val F: Monad[F] = F0 }
 
   implicit def catsDataEqForEitherT[F[_], L, R](implicit F: Eq[F[Either[L, R]]]): Eq[EitherT[F, L, R]] =
     new EitherTEq[F, L, R] {
@@ -379,7 +379,7 @@ private[data] abstract class EitherTInstances2 extends EitherTInstances3 {
 
 private[data] abstract class EitherTInstances3 {
   implicit def catsDataFunctorForEitherT[F[_], L](implicit F0: Functor[F]): Functor[EitherT[F, L, ?]] =
-    new EitherTFunctor[F, L] { implicit val F = F0 }
+    new EitherTFunctor[F, L] { implicit val F: Functor[F] = F0 }
 }
 
 private[data] trait EitherTSemigroup[F[_], L, A] extends Semigroup[EitherT[F, L, A]] {

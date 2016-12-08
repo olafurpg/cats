@@ -228,7 +228,7 @@ class LawTests extends FunSuite with Discipline {
           .forall { case (x, y) => a.eqv(x, y) == b.eqv(x, y) }
     }
 
-    implicit val monoidOrderN = Order.whenEqualMonoid[N]
+    implicit val monoidOrderN: Monoid[Order[N]] with Band[Order[N]] = Order.whenEqualMonoid[N]
     laws[GroupLaws, Order[N]].check(_.monoid)
     laws[GroupLaws, Order[N]].check(_.band)
 

@@ -155,7 +155,7 @@ final class NonEmptyVector[A] private (val toVector: Vector[A]) extends AnyVal {
    * Remove duplicates. Duplicates are checked using `Order[_]` instance.
    */
   def distinct(implicit O: Order[A]): NonEmptyVector[A] = {
-    implicit val ord = O.toOrdering
+    implicit val ord: Ordering[A] = O.toOrdering
 
     val buf = Vector.newBuilder[A]
     tail.foldLeft(TreeSet(head)) { (elementsSoFar, a) =>
